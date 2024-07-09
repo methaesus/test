@@ -1,4 +1,5 @@
 import pyrogram 
+import random
 from pyrogram import Client, filters 
 from pyrogram.types import Message 
 
@@ -42,7 +43,58 @@ OWNER_ID = 6905940236
       await message.reply("Merhaba, ben test deneme butonuyum. Aşağıdaki butonlardan birini seçebilirsiniz:",
            reply_markup=keyboard
       )     
-           
+
+
+
+
+
+
+# slapmessages örnekleri
+slapmessages = [
+    "{}, {}'in yüzüne tükürdü!",
+    "{}, {}'i tekmeledi!",
+    "{}, {}'e tokat attı!",
+    "{}, {}'i itti!",
+    "{}, {}'in saçını çekti!",
+    "{}, {}'e su fırlattı!",
+    "{}, {}'i güldürdü!",
+    "{}, {}'i şok etti!",
+    "{}, {}'in üstüne kahve döktü!"
+]
+
+@app.on_message(filters.command(["sille"]) & filters.private)
+async def sille(client, message):
+    # Komutun bir yanıt olup olmadığını kontrol ediyoruz
+    if not message.reply_to_message:
+        await message.reply("Bu komutu kullanmak için bir mesajı yanıtlamalısınız.")
+        return
+
+    # Yanıtlayan kişinin (gönderici) ve yanıtlanan kişinin (hedef) bilgilerini alıyoruz
+    sender = message.from_user
+    target = message.reply_to_message.from_user
+
+    # Eğer yanıtlanan kişi OWNER_ID ise özel bir mesaj gönderiyoruz
+    if target.id == OWNER_ID:
+        await message.reply("Beni tokatlayamazsın!")
+        return
+
+    # Yanıtlayan ve yanıtlanan kişinin mentionlarını alıyoruz
+    sender_mention = sender.mention
+    target_mention = target.mention
+
+    # Rastgele bir slap mesajı seçiyoruz ve isimlerle dolduruyoruz
+    slap_message = random.choice(slapmessages).format(sender_mention, target_mention)
+
+    # Yanıtlanan mesaja gönderilecek mesajı oluşturuyoruz
+    await message.reply_to_message.reply(slap_message)
+
+
+
+
+
+
+
+
 @app.on_message(filters.command("kole") & filters.group) 
 async def kole(client, message):
      
@@ -84,6 +136,17 @@ def welcome(client, message):  # hoş geldin mesajı fonksiyonunu tanımlıyoruz
             message.reply(f"Hoş geldiniz, {member.mention}! Botun sahibinin gruba katılması büyük bir onur.")  # özel bir hoş geldin mesajı gönderiyoruz
         else:  # Eğer katılan kullanıcı bot sahibi değilse
             message.reply(f"Hoş geldiniz, {member.mention}! Grubumuza katıldığınız için mutluyuz.")  # genel hoş geldin mesajı gönderiyoruz
+
+
+
+# Bir kullanıcı gruptan ayrıldığında çalışacak fonksiyon
+@app.on_message(filters.left_chat_member)
+def goodbye(client, message):
+    member = message.left_chat_member
+    if member.id == OWNER_ID:
+        message.reply(f"Maalesef, {member.mention} gruptan ayrıldı. Umarız tekrar gelirsin!")
+    else:
+        message.reply(f"Hoşça kal, {member.mention}. Seni özleyeceğiz!")
 
 
 
